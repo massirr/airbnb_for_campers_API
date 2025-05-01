@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 /* GET list of bookings */
-router.get('/', async function(req, res, next) {
+router.get('/bookings', async function(req, res, next) {
   const data = await prisma.booking.findMany();
   res.json(data);
 });
