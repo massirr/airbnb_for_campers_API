@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 /* GET localhost:3000/camps/geocode */
-router.get('/geocode', async function(req, res, next) {
+router.get('/camps', async function(req, res, next) {
   const location = 'Bocholt, Vlaanderen'; //where I will put the locations, e.g, Brussels, Belgium.
   if (!location) {
     return res.status(400).json({ error: 'Missing location query param' });
