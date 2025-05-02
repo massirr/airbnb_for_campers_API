@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET localhost:3000/camps/geocode */
 router.get('/', async function(req, res, next) {
-  const location = 'Bocholt, Vlaanderen'; //where I will put the locations, e.g, Brussels, Belgium.
+  const location = 'brussels, Belgium'; //where I will put the locations, e.g, Brussels, Belgium.
   if (!location) {
     return res.status(400).json({ error: 'Missing location ' });
   }
