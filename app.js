@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var bookingsRouter = require('./routes/bookings');
 var campsRouter = require('./routes/camps');
 var latlonRouter = require('./routes/latlon');
+var featuresRouter = require('./routes/features');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/users', usersRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/camps', campsRouter);
 app.use('/latlon', latlonRouter);
+app.use('/features', featuresRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

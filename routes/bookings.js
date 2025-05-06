@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 
 /* GET list of bookings */
 router.get('/', async function(req, res, next) {
-  const data = await prisma.booking.findMany();
-  res.json(data);
+  const bookings = await prisma.bookings.findMany();
+  res.json(bookings);
 });
 
 module.exports = router;
