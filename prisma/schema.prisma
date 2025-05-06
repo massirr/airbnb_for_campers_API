@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // don't forget to remove the path to ensure npx prisma generate works with "@prisma/client" the default location.
 }
 
 datasource db {
@@ -8,44 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model booking {
-  bookingID            Int                    @id @unique(map: "bookingID_UNIQUE") @default(1)
-  userID               Int
-  startDate            DateTime               @db.DateTime(0)
-  endDate              DateTime               @db.DateTime(0)
-  price                Int
-  user                 user                   @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_userID")
-  campingSpot_bookings campingSpot_bookings[]
-  review               review[]
-
-  @@index([userID], map: "fk_booking_userID_idx")
-}
-
-model campingSpot {
-  spotID               Int                    @id @unique(map: "spotID_UNIQUE")
-  userID               Int
-  name                 String                 @db.VarChar(45)
-  description          String?                @db.VarChar(45)
-  price                Int
-  countryID            Int
-  cityID               Int
-  city                 city                   @relation(fields: [cityID], references: [cityID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_cityID")
-  country              country                @relation(fields: [countryID], references: [countryID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_countryID")
-  user                 user                   @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_userID")
-  campingSpot_bookings campingSpot_bookings[]
-  campingSpot_features campingSpot_features[]
-  review               review[]
-
-  @@index([countryID], map: "fk_campingSpot_CountryID_idx")
-  @@index([cityID], map: "fk_campingSpot_cityID_idx")
-  @@index([userID], map: "fk_campingSpot_userID_idx")
-}
-
 model campingSpot_bookings {
   spotID      Int
   bookingID   Int
-  booking     booking     @relation(fields: [bookingID], references: [bookingID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_bookings_bookingID")
-  campingSpot campingSpot @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_bookings_spotID")
+  booking     bookings     @relation(fields: [bookingID], references: [bookingID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_bookings_bookingID")
+  campingSpot campingSpots @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_bookings_spotID")
 
   @@id([spotID, bookingID])
   @@index([bookingID], map: "fk_campingSpot_bookings_bookingID_idx")
@@ -55,52 +21,72 @@ model campingSpot_bookings {
 model campingSpot_features {
   spotID      Int
   featureID   Int
-  feature     feature     @relation(fields: [featureID], references: [featureID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_featrureID")
-  campingSpot campingSpot @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_spotID")
+  feature     features     @relation(fields: [featureID], references: [featureID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_featrureID")
+  campingSpot campingSpots @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_spotID")
 
   @@id([spotID, featureID])
   @@index([featureID], map: "fk_campingSpot_features_featrureID_idx")
   @@index([spotID], map: "fk_campingSpot_features_spotID_idx")
 }
 
-model city {
-  cityID      Int           @id
-  cityName    String        @db.VarChar(45)
-  campingSpot campingSpot[]
+model bookings {
+  bookingID            Int                    @id @unique(map: "bookingID_UNIQUE") @default(1)
+  userID               Int
+  startDate            DateTime               @db.DateTime(0)
+  endDate              DateTime               @db.DateTime(0)
+  price                Int
+  users                users                  @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_userID")
+  campingSpot_bookings campingSpot_bookings[]
+  reviews              reviews[]
+
+  @@index([userID], map: "fk_booking_userID_idx")
 }
 
-model country {
-  countryID   Int           @id
-  countryName String        @db.VarChar(45)
-  campingSpot campingSpot[]
+model campingSpots {
+  spotID               Int                    @id @unique(map: "spotID_UNIQUE")
+  userID               Int
+  name                 String                 @db.VarChar(45)
+  description          String                 @db.VarChar(45)
+  price                Int
+  country              String                 @db.VarChar(45)
+  city                 String                 @db.VarChar(45)
+  latitude             Decimal                @db.Decimal(10, 10)
+  longitude            Decimal                @db.Decimal(10, 10)
+  bookable             String                 @default("true") @db.VarChar(45)
+  campingSpot_bookings campingSpot_bookings[]
+  campingSpot_features campingSpot_features[]
+  users                users                  @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_userID")
+  reviews              reviews[]
+
+  @@index([userID], map: "fk_campingSpot_userID_idx")
 }
 
-model feature {
+model features {
   featureID            Int                    @id @unique(map: "featureID_UNIQUE")
   featureName          String                 @db.VarChar(45)
   campingSpot_features campingSpot_features[]
 }
 
-model review {
-  reviewID    Int         @id @unique(map: "reviewID_UNIQUE")
-  bookingID   Int
-  spotID      Int
-  rating      Int?
-  comment     String?     @db.VarChar(45)
-  booking     booking     @relation(fields: [bookingID], references: [bookingID], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_bookingID")
-  campingSpot campingSpot @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_spotID")
+model reviews {
+  reviewID     Int          @id @unique(map: "reviewID_UNIQUE")
+  bookingID    Int
+  spotID       Int
+  rating       Int?
+  comment      String?      @db.VarChar(45)
+  bookings     bookings     @relation(fields: [bookingID], references: [bookingID], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_bookingID")
+  campingSpots campingSpots @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_review_spotID")
 
   @@index([bookingID], map: "fk_review_bookingID_idx")
   @@index([spotID], map: "fk_review_spotID_idx")
 }
 
-model user {
-  userID      Int           @id
-  username    String        @db.VarChar(16)
-  email       String        @db.VarChar(255)
-  password    String        @db.VarChar(32)
-  createDate  DateTime      @db.DateTime(0)
-  isAdmin     String        @db.VarChar(45)
-  booking     booking[]
-  campingSpot campingSpot[]
+model users {
+  userID       Int            @id
+  username     String         @db.VarChar(16)
+  email        String         @db.VarChar(255)
+  password     String         @db.VarChar(32)
+  createDate   DateTime       @db.DateTime(0)
+  isAdmin      String         @db.VarChar(45)
+  bookings     bookings[]
+  campingSpots campingSpots[]
 }
