@@ -54,26 +54,22 @@ router.get('/spots', async function (req, res, next) {
 });
 
 // POST to update the bookable status of a camping spot
-router.post('/spots/:spotID/bookable', async function (req, res, next) {
+router.post('/spots/:spotID', async function (req, res, next) {
   const spotID = parseInt(req.params.spotID); // Extract the spotID from the route parameter
   const { bookable } = req.body; // Extract the bookable status from the request body
 
-  // Validate that bookable is either "true" or "false"
+  // Validate that bookable is a string ("true" or "false")
   if (bookable !== 'true' && bookable !== 'false') {
     return res.status(400).json({ error: 'Invalid bookable status. It must be "true" or "false" as a string.' });
-  }
-
-  try {
+  }else{
+    // Update the bookable status in the database
     const updatedSpot = await prisma.campingSpots.update({
       where: { spotID: spotID },
-      data: { bookable: bookable }, // Update the bookable status as a string
+      data: { bookable: bookable }, // Update the bookable status
     });
 
-    res.json(updatedSpot); // Return the updated camping spot
-  } catch (error) {
-    console.error('Error updating bookable status:', error);
-    res.status(500).json({ error: 'Something went wrong while updating the bookable status.' });
-  }
+    res.json(updatedSpot); // Return the updated camping spot  
+    }
 });
 
 module.exports = router;

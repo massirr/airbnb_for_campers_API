@@ -44,7 +44,7 @@ model bookings {
 model campingSpots {
   spotID               Int                    @id @default(autoincrement())
   userID               Int                    @default(1)
-  name                 String                 @unique(map: "name_UNIQUE") @db.VarChar(45)
+  name                 String                 @unique(map: "name_UNIQUE") @db.VarChar(45) // prevent creating duplicate camps
   description          String                 @db.LongText
   price                Int
   country              String                 @db.VarChar(45)
