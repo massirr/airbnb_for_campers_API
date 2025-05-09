@@ -10,4 +10,5 @@ router.get('/', async function(req, res, next) {
   res.json(bookings);
 });
 
+
 module.exports = router;
