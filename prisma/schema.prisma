@@ -22,7 +22,6 @@ model campingSpot_features {
   spotFeatureID Int          @id @default(autoincrement())
   spotID        Int
   featureID     Int
-  feature       features     @relation(fields: [featureID], references: [featureID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_featrureID")
   campingSpot   campingSpots @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_spotID")
 
   @@index([spotID], map: "fk_campingSpot_features_spotID_idx")
@@ -35,7 +34,6 @@ model bookings {
   startDate            DateTime               @db.DateTime(0)
   endDate              DateTime               @db.DateTime(0)
   price                Int
-  users                users                  @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_userID")
   campingSpot_bookings campingSpot_bookings[]
 
   @@index([userID], map: "fk_bookings_userID_idx")
@@ -44,7 +42,7 @@ model bookings {
 model campingSpots {
   spotID               Int                    @id @default(autoincrement())
   userID               Int                    @default(1)
-  name                 String                 @unique(map: "name_UNIQUE") @db.VarChar(45) // prevent creating duplicate camps
+  name                 String                 @unique(map: "name_UNIQUE") @db.VarChar(45)
   description          String                 @db.LongText
   price                Int
   country              String                 @db.VarChar(45)
@@ -56,15 +54,13 @@ model campingSpots {
   campingSpot_bookings campingSpot_bookings[]
   campingSpot_features campingSpot_features[]
   campingSpot_images   campingSpot_images[]
-  users                users                  @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_userID")
 
   @@index([userID], map: "fk_campingSpots_userID_idx")
 }
 
 model features {
-  featureID            Int                    @id @default(autoincrement())
-  featureName          String                 @db.VarChar(45)
-  campingSpot_features campingSpot_features[]
+  featureID   Int    @id @default(autoincrement())
+  featureName String @db.VarChar(45)
 }
 
 model reviews {
@@ -76,14 +72,12 @@ model reviews {
 }
 
 model users {
-  userID       Int            @id @default(autoincrement())
-  username     String         @unique(map: "username_UNIQUE") @db.VarChar(16)
-  email        String         @db.VarChar(255)
-  password     String         @db.VarChar(32)
-  createDate   DateTime       @db.DateTime(0)
-  isAdmin      String         @default("false") @db.VarChar(45)
-  bookings     bookings[]
-  campingSpots campingSpots[]
+  userID     Int      @id @default(autoincrement())
+  username   String   @unique(map: "username_UNIQUE") @db.VarChar(16)
+  email      String   @unique(map: "email_UNIQUE") @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  createDate DateTime @db.DateTime(0)
+  isAdmin    String   @default("false") @db.VarChar(45)
 }
 
 model campingSpot_images {
