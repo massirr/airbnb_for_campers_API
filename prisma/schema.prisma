@@ -34,6 +34,7 @@ model bookings {
   startDate            DateTime               @db.DateTime(0)
   endDate              DateTime               @db.DateTime(0)
   price                Int
+  isCanceled           String                 @default("false") @db.VarChar(25)
   campingSpot_bookings campingSpot_bookings[]
 
   @@index([userID], map: "fk_bookings_userID_idx")
@@ -73,7 +74,7 @@ model reviews {
 
 model users {
   userID     Int      @id @default(autoincrement())
-  username   String   @unique(map: "username_UNIQUE") @db.VarChar(16)
+  username   String?  @unique(map: "username_UNIQUE") @db.VarChar(255)
   email      String   @unique(map: "email_UNIQUE") @db.VarChar(255)
   password   String   @db.VarChar(255)
   createDate DateTime @db.DateTime(0)

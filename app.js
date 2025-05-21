@@ -6,12 +6,12 @@ var logger = require('morgan');
 const cors = require('cors');
 
 var authRoutes = require('./routes/auth');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var bookingsRouter = require('./routes/bookings');
 var campsRouter = require('./routes/camps');
-var latlonRouter = require('./routes/latlon');
 var featuresRouter = require('./routes/features');
+var indexRouter = require('./routes/index');
+var latlonRouter = require('./routes/latlon');
+var usersRouter = require('./routes/users');
 
 var app = express();
 
