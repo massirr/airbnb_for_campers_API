@@ -22,6 +22,7 @@ model campingSpot_features {
   spotFeatureID Int          @id @default(autoincrement())
   spotID        Int
   featureID     Int
+  features      features     @relation(fields: [featureID], references: [featureID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_featureID")
   campingSpot   campingSpots @relation(fields: [spotID], references: [spotID], onDelete: NoAction, onUpdate: NoAction, map: "fk_campingSpot_features_spotID")
 
   @@index([spotID], map: "fk_campingSpot_features_spotID_idx")
@@ -60,8 +61,9 @@ model campingSpots {
 }
 
 model features {
-  featureID   Int    @id @default(autoincrement())
-  featureName String @db.VarChar(45)
+  featureID            Int                    @id @default(autoincrement())
+  featureName          String                 @db.VarChar(45)
+  campingSpot_features campingSpot_features[]
 }
 
 model reviews {

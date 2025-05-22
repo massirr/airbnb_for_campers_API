@@ -10,6 +10,43 @@ router.get('/', async function(req, res, next) {
   res.json(bookings);
 });
 
+/* GET active bookings for user (not canceled) with spot names */
+router.get('/:userID', async function (req, res, next) {
+  const userId = parseInt(req.params.userID); // Extract the user ID from the route parameter
+  
+  try {
+    const bookings = await prisma.bookings.findMany({
+      where: { 
+        userID: userId,
+        isCanceled: "false" // Only fetch bookings that are not canceled
+      },
+      include: {
+        campingSpot_bookings: {
+          include: {
+            campingSpot: {
+              select: {
+                name: true, // Include the camping spot name
+                country: true,
+                city: true,
+                price: true
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    if (bookings.length > 0) {
+      res.json(bookings);
+    } else {
+      res.status(404).json({ error: 'No active bookings found for this user' });
+    }
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings', details: error.message });
+  }
+});
+
 /* POST create a new booking and link it to a camping spot */
 router.post('/', async function(req, res, next) {
   const { userID, spotID, startDate, endDate, price } = req.body;
@@ -48,6 +85,25 @@ router.post('/', async function(req, res, next) {
     console.error('Error creating booking:', error);
     res.status(500).json({ error: 'Failed to create booking', details: error.message });
   }
+});
+
+// POST to update
+router.post('/:bookingID', async function (req, res, next) {
+  const bookingID = parseInt(req.params.bookingID); 
+  const { isCanceled } = req.body;
+
+  // Validate that bookable is a string ("true" or "false")
+  if (isCanceled !== 'true' && isCanceled !== 'false') {
+    return res.status(400).json({ error: 'Invalid bookable status. It must be "true" or "false" as a string.' });
+  }else{
+    // Update the isCanceled status in the database
+    const updatedBooking = await prisma.bookings.update({
+      where: { bookingID: bookingID },
+      data: { isCanceled: isCanceled }, // Update 
+    });
+
+    res.json(updatedBooking);  
+    }
 });
 
 module.exports = router;
