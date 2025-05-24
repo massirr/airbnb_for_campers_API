@@ -24,7 +24,34 @@ router.get('/', async function(req, res, next) {
   }
 });
 
-// GET a spot of spots that are bookable
+/* Get the camps and their features*/
+router.get('/features', async function(req, res, next) {
+  try {
+    const camps = await prisma.campingSpots.findMany({
+      select: {
+        spotID: true,
+        name: true,
+        campingSpot_features: {
+          select: {
+            featureID: true,
+            features: { 
+              select: {
+                featureName: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    res.json(camps);
+  } catch (error) {
+    console.error('Error fetching camps:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+// GET a spot of spots or spots that are bookable
 router.get('/spots', async function (req, res, next) {
   const { spotID, bookable } = req.query;
 
