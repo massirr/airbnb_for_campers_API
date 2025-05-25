@@ -13,6 +13,16 @@ router.get('/', async function(req, res, next) {
           select: {
             imageURL: true, // Only fetch the imageURLs of the camping spot
           },  
+        },
+        campingSpot_features: {
+          select: {
+            featureID: true,
+            features: { 
+              select: {
+                featureName: true
+              }
+            }
+          }
         }
       },
     });
