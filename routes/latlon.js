@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
-  const location = 'Poupehan, Belgium'; // This could also come from req.query.location, don't forget to use it in the frontend
+  const location = req.query.location || 'Mechelen, Belgium'; // Dynamically fetch location from query or use default
 
   if (!location?.trim()) {
     return res.status(400).json({ error: 'Missing location' });
