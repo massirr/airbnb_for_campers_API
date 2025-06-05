@@ -109,4 +109,181 @@ router.post('/spots/:spotID', async function (req, res, next) {
     }
 });
 
+// Create a new camping spot
+router.post('/', async function (req, res, next) {
+  try {
+    const { 
+      name, 
+      description, 
+      price, 
+      latitude, 
+      longitude, 
+      country, 
+      city, 
+      capacity, 
+      bookable,
+      features 
+    } = req.body;
+
+    // Create the camping spot
+    const newSpot = await prisma.campingSpots.create({
+      data: {
+        name,
+        description,
+        price: parseInt(price),
+        latitude,
+        longitude,
+        country,
+        city,
+        capacity: parseInt(capacity),
+        bookable: bookable || 'true'
+      }
+    });
+
+    // If features are provided, create the associations
+    if (features && Array.isArray(features) && features.length > 0) {
+      const featureAssociations = features.map(featureID => ({
+        spotID: newSpot.spotID,
+        featureID: parseInt(featureID)
+      }));
+
+      await prisma.campingSpot_features.createMany({
+        data: featureAssociations
+      });
+    }
+
+    res.status(201).json(newSpot);
+  } catch (error) {
+    console.error('Error creating camping spot:', error);
+    res.status(500).json({ error: 'Failed to create camping spot', details: error.message });
+  }
+});
+
+// Update a camping spot
+router.put('/:spotID', async function (req, res, next) {
+  try {
+    const spotID = parseInt(req.params.spotID);
+    const { 
+      name, 
+      description, 
+      price, 
+      latitude, 
+      longitude, 
+      country, 
+      city, 
+      capacity, 
+      bookable,
+      features 
+    } = req.body;
+
+    // Prepare update data (only include fields that are provided)
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (price !== undefined) updateData.price = parseInt(price);
+    if (latitude !== undefined) updateData.latitude = latitude;
+    if (longitude !== undefined) updateData.longitude = longitude;
+    if (country !== undefined) updateData.country = country;
+    if (city !== undefined) updateData.city = city;
+    if (capacity !== undefined) updateData.capacity = parseInt(capacity);
+    if (bookable !== undefined) updateData.bookable = bookable;
+
+    // Update the camping spot
+    const updatedSpot = await prisma.campingSpots.update({
+      where: { spotID },
+      data: updateData
+    });
+
+    // If features are provided, update the associations
+    if (features && Array.isArray(features)) {
+      // Delete existing feature associations
+      await prisma.campingSpot_features.deleteMany({
+        where: { spotID }
+      });
+
+      // Create new feature associations
+      if (features.length > 0) {
+        const featureAssociations = features.map(featureID => ({
+          spotID,
+          featureID: parseInt(featureID)
+        }));
+
+        await prisma.campingSpot_features.createMany({
+          data: featureAssociations
+        });
+      }
+    }
+
+    res.json(updatedSpot);
+  } catch (error) {
+    console.error('Error updating camping spot:', error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Camping spot not found' });
+    }
+    res.status(500).json({ error: 'Failed to update camping spot', details: error.message });
+  }
+});
+
+// Delete a camping spot
+router.delete('/:spotID', async function (req, res, next) {
+  try {
+    const spotID = parseInt(req.params.spotID);
+
+    // Delete associated features first
+    await prisma.campingSpot_features.deleteMany({
+      where: { spotID }
+    });
+
+    // Delete associated images
+    await prisma.campingSpot_images.deleteMany({
+      where: { spotID }
+    });
+
+    // Delete associated bookings through the junction table
+    await prisma.campingSpot_bookings.deleteMany({
+      where: { spotID }
+    });
+
+    // Delete the camping spot
+    await prisma.campingSpots.delete({
+      where: { spotID }
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting camping spot:', error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Camping spot not found' });
+    }
+    res.status(500).json({ error: 'Failed to delete camping spot', details: error.message });
+  }
+});
+
+// Add images to a camping spot
+router.post('/:spotID/images', async function (req, res, next) {
+  try {
+    const spotID = parseInt(req.params.spotID);
+    const { imageURLs } = req.body;
+
+    if (!Array.isArray(imageURLs) || imageURLs.length === 0) {
+      return res.status(400).json({ error: 'imageURLs must be a non-empty array' });
+    }
+
+    // Create image entries
+    const imageData = imageURLs.map(url => ({
+      spotID,
+      imageURL: url
+    }));
+
+    await prisma.campingSpot_images.createMany({
+      data: imageData
+    });
+
+    res.status(201).json({ message: `Added ${imageData.length} images to camping spot` });
+  } catch (error) {
+    console.error('Error adding images:', error);
+    res.status(500).json({ error: 'Failed to add images', details: error.message });
+  }
+});
+
 module.exports = router;
