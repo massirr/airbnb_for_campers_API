@@ -61,7 +61,7 @@ router.get('/features', async function(req, res, next) {
   }
 });
 
-// GET a spot of spots or spots that are bookable
+// GET a spot or spots that are bookable
 router.get('/spots', async function (req, res, next) {
   const { spotID, bookable } = req.query;
 

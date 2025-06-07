@@ -38,34 +38,6 @@ router.get('/', async function(req, res, next) {
     // Count features
     const featureCount = await prisma.features.count();
     
-    // Get most popular features (by number of spots using them)
-    const popularFeatures = await prisma.campingSpot_features.groupBy({
-      by: ['featureID'],
-      _count: {
-        spotID: true
-      },
-      orderBy: {
-        _count: {
-          spotID: 'desc'
-        }
-      },
-      take: 5
-    });
-    
-    // Get feature details for the popular features
-    const featureDetails = await Promise.all(
-      popularFeatures.map(async (feature) => {
-        const featureInfo = await prisma.features.findUnique({
-          where: { featureID: feature.featureID }
-        });
-        return {
-          featureID: feature.featureID,
-          featureName: featureInfo.featureName,
-          spotCount: feature._count.spotID
-        };
-      })
-    );
-    
     res.json({
       users: {
         total: userCount
@@ -82,7 +54,6 @@ router.get('/', async function(req, res, next) {
       },
       features: {
         total: featureCount,
-        mostPopular: featureDetails
       },
       lastUpdated: new Date()
     });
