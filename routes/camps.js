@@ -121,7 +121,6 @@ router.post('/', async function (req, res, next) {
       country, 
       city, 
       capacity, 
-      bookable,
       features 
     } = req.body;
 
@@ -136,7 +135,7 @@ router.post('/', async function (req, res, next) {
         country,
         city,
         capacity: parseInt(capacity),
-        bookable: bookable || 'true'
+        bookable: 'true'
       }
     });
 
